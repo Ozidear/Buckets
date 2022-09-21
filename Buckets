@@ -1,0 +1,18 @@
+def main():
+
+    buckets = {}
+    initial_value = {}
+    final_value = {}
+
+
+class Bucket:
+
+    size = 0
+    current_value = 0
+
+    def __init__(self, size, initial_value):
+        self.size = size
+        current_value = initial_value
+
+    
+
