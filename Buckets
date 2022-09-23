@@ -12,7 +12,14 @@ class Bucket:
 
     def __init__(self, size, initial_value):
         self.size = size
-        current_value = initial_value
+        self.current_value = initial_value
 
-    
 
+    def fill(self):
+        self.current_value = self.size
+
+    def empty(self):
+        self.current_value = 0
+
+    def empty_into(self, other):
+        
