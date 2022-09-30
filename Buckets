@@ -1,18 +1,28 @@
 def main():
 
-    buckets = {}
+    size = {}
+    for i in range(2):
+        size[i] = input(f"Enter bucket's #{i+1} size: ")
+
     initial_value = {}
+    for i in range(2):
+        initial_value[i] = input(f"Enter bucket's #{i+1} initial value: ")
+
     final_value = {}
+    for i in range(2):
+        final_value[i] = input(f"Enter bucket's #{i+1} final value: ")
+
+    queue = []
 
 
 class Bucket:
-
-    size = 0
-    current_value = 0
-
     def __init__(self, size, initial_value):
         self.size = size
         self.current_value = initial_value
+    
+    def __init__(self, other):
+        self.size = other.size
+        self.current_value = other.current_value
 
 
     def fill(self):
@@ -22,4 +32,51 @@ class Bucket:
         self.current_value = 0
 
     def empty_into(self, other):
-        
+        if self.current_value + other.current_value > other.size:
+            poured_amount = other.size - other.current_value
+            self.current_value -= poured_amount
+            other.current_value = other.size
+        else:
+            other.current_value += self.current_value
+            self.current_value = 0
+
+
+class State:
+
+    def __init__(self, bucket1, bucket2):
+        self.bucket1 = bucket1
+        self.bucket2 = bucket2
+
+    def GenerateAllStates(self):
+        states = []
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1.fill()
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket2.fill()
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1.empty()
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket2.empty()
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1.empty_into(temp_bucket2)
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket2.empty_into(temp_bucket1)
+        states.append(State(temp_bucket1, temp_bucket2))
+
+        return states
+
+if __name__ == "__main__":
+    main()
+
+
