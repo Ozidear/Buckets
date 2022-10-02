@@ -2,27 +2,43 @@ def main():
 
     size = {}
     for i in range(2):
-        size[i] = input(f"Enter bucket's #{i+1} size: ")
+        size[i] = int(input(f"Enter bucket's #{i+1} size: "))
 
     initial_value = {}
     for i in range(2):
-        initial_value[i] = input(f"Enter bucket's #{i+1} initial value: ")
+        initial_value[i] = int(input(f"Enter bucket's #{i+1} initial value: "))
 
     final_value = {}
     for i in range(2):
-        final_value[i] = input(f"Enter bucket's #{i+1} final value: ")
+        final_value[i] = int(input(f"Enter bucket's #{i+1} final value: "))
 
     queue = []
 
+    initial_state = State(bucket1 = Bucket(size = size[0],  initial_value = initial_value[0]), bucket2 = Bucket(size = size[1],  initial_value = initial_value[1]))
+    final_state = State(bucket1 = Bucket(size = size[0],  initial_value = final_value[0]), bucket2 = Bucket(size = size[1],  initial_value = final_value[1]))
+    current_state = State(other = initial_state)
+
+    while not final_state.is_equal(current_state):
+        generated_states = current_state.generate_all_states()
+
+        for i in generated_states:
+            queue.append(i)
+
+        current_state = queue.pop(0)
+
+    current_state.print()
+
 
 class Bucket:
-    def __init__(self, size, initial_value):
-        self.size = size
-        self.current_value = initial_value
-    
-    def __init__(self, other):
-        self.size = other.size
-        self.current_value = other.current_value
+
+    def __init__(self, other = None, size = None, initial_value = None):
+        if other == None and size != None and initial_value != None:
+            self.size = size
+            self.current_value = initial_value
+
+        if other != None and size == None and initial_value == None:
+            self.size = other.size
+            self.current_value = other.current_value
 
 
     def fill(self):
@@ -43,40 +59,60 @@ class Bucket:
 
 class State:
 
-    def __init__(self, bucket1, bucket2):
-        self.bucket1 = bucket1
-        self.bucket2 = bucket2
+    def __init__(self, other = None, bucket1 = None, bucket2 = None):
+        if other == None and bucket1 != None and bucket2 != None:
+            self.path = f"({bucket1.current_value}, {bucket2.current_value})"
+            self.length = 1
+            self.bucket1 = bucket1
+            self.bucket2 = bucket2
 
-    def GenerateAllStates(self):
+        if other != None and bucket1 == None and bucket2 == None:
+            self.path = other.path
+            self.length = other.length
+            self.bucket1 = other.bucket1
+            self.bucket2 = other.bucket2
+
+        if other != None and bucket1 != None and bucket2 != None:
+            self.path = other.path + f" -> ({bucket1.current_value}, {bucket2.current_value})"
+            self.length = other.length + 1
+            self.bucket1 = bucket1
+            self.bucket2 = bucket2
+
+
+    def print(self):
+        print(f"Length: {self.length}\n{self.path}")
+
+    def is_equal(self, other):
+        return self.bucket1.current_value == other.bucket1.current_value and self.bucket2.current_value == other.bucket2.current_value
+
+    def generate_all_states(self):
         states = []
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket1.fill()
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket2.fill()
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket1.empty()
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket2.empty()
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket1.empty_into(temp_bucket2)
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
-        temp_bucket1, temp_bucket2 = Bucket(self.bucket1), Bucket(self.bucket2)
+        temp_bucket1, temp_bucket2 = Bucket(other = self.bucket1), Bucket(other = self.bucket2)
         temp_bucket2.empty_into(temp_bucket1)
-        states.append(State(temp_bucket1, temp_bucket2))
+        states.append(State(other = self, bucket1 = temp_bucket1, bucket2 = temp_bucket2))
 
         return states
 
 if __name__ == "__main__":
     main()
-
-
